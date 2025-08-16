@@ -15,19 +15,16 @@ except ImportError:
     print("MoviePy not available - audio extraction will be disabled")
 
 # FFmpeg converter (mock implementation if not available)
-try:
-    from video_compressor import VideoConverter
-    FFMPEG_AVAILABLE = True
-except ImportError:
-    FFMPEG_AVAILABLE = False
-    class VideoConverter:
-        def __init__(self, ffmpeg_path=None):
-            pass
-        
-        def convert_to_mp4(self, input_file, output_path, quality="fast", audio_bitrate="192k"):
-            time.sleep(2)  # Simulate processing time
-            output_file = os.path.join(output_path, f"{Path(input_file).stem}.mp4")
-            return {"success": True, "output_file": output_file, "error": None}
+# VideoConverter mock implementation (FFmpeg not available)
+FFMPEG_AVAILABLE = False
+class VideoConverter:
+    def __init__(self, ffmpeg_path=None):
+        pass
+
+    def convert_to_mp4(self, input_file, output_path, quality="fast", audio_bitrate="192k"):
+        time.sleep(2)  # Simulate processing time
+        output_file = os.path.join(output_path, f"{Path(input_file).stem}.mp4")
+        return {"success": True, "output_file": output_file, "error": None}
 
 class UnifiedMediaConverter:
     def __init__(self, root):
