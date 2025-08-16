@@ -1,10 +1,48 @@
 # Multimedia Tools Collection
 
-A comprehensive suite of modern Python desktop applications for multimedia processing, password management, and image viewing. Each tool features a dark theme, modern UI, and powerful functionality built with customtkinter and tkinter.
+A comprehensive suite of modern Python desktop applications for multimedia processing, password management, image viewing, and content downloading. Each tool features a dark theme, modern UI, and powerful functionality built with customtkinter and tkinter.
 
 ## 🛠️ Applications Included
 
-### 1. 🖼️ Image Processor (`convert_compress_resize_image.py`)
+### 1. 🎬 Audio & Video Converter (`audio_and_video_converter.py`)
+Unified media converter with tabbed interface for audio extraction and video conversion using MoviePy and FFmpeg.
+
+**Features:**
+- **Tabbed Interface**: Separate tabs for audio extraction and video conversion
+- **Audio Extraction**: Extract MP3, AAC, WAV, OGG from video files using MoviePy
+- **Video Conversion**: Convert videos to MP4 with customizable quality settings
+- **Batch Processing**: Multiple file support with progress tracking
+- **Modern UI**: Dark theme with card-based design and progress indicators
+- **Smart Dependencies**: Automatic detection and fallback for missing libraries
+- **Real-time Progress**: Thread-based processing with queue communication
+
+**Technical Components:**
+- MoviePy for audio extraction from video files
+- Mock FFmpeg converter with quality presets
+- Threading with queue-based progress updates
+- Card-style UI with ttk styling
+- Automatic library detection and warnings
+
+### 2. 📺 Video Downloader (`download_video_and_audio.py`)
+Advanced video and audio downloader with support for multiple platforms using yt-dlp.
+
+**Features:**
+- **Multi-Platform Support**: YouTube, Vimeo, Dailymotion, Archive.org compatibility
+- **Quality Selection**: Choose from 144p to 4K with format options (MP4, WebM, MKV)
+- **Audio Extraction**: Download audio-only in MP3, AAC, WAV, Opus formats
+- **Batch Downloads**: Queue multiple URLs with progress tracking
+- **Video Information**: Detailed metadata extraction and format analysis
+- **URL Validation**: Real-time URL format checking with visual feedback
+- **Playlist Support**: Handle individual videos or entire playlists
+
+**Advanced Features:**
+- yt-dlp integration for robust downloading
+- Tabbed interface for video, audio, batch, and info modes
+- Progress hooks with ETA and percentage tracking
+- URL list management with save/load functionality
+- Format analysis with codec and file size information
+
+### 3. 🖼️ Image Processor (`convert_compress_resize_image.py`)
 Professional image processing tool with resize, compress, and format conversion capabilities using PIL and FFmpeg.
 
 **Features:**
@@ -21,7 +59,7 @@ Professional image processing tool with resize, compress, and format conversion 
 - Threading for non-blocking operations
 - Automatic JPEG background conversion for transparency
 
-### 2. 🔐 Password Manager (`password_generator.py`)
+### 6. 🔐 Password Manager (`password_generator.py`)
 Advanced password generation and security analysis tool with comprehensive breach checking and strength analysis.
 
 **Features:**
@@ -40,8 +78,6 @@ Advanced password generation and security analysis tool with comprehensive breac
 - Repeated character analysis
 - Character diversity scoring
 - Real-time strength visualization
-
-### 3. 📸 Slideshow Viewer (`slideshow.py`)
 High-performance image slideshow application with advanced caching, preloading, and smooth navigation.
 
 **Features:**
@@ -60,7 +96,26 @@ High-performance image slideshow application with advanced caching, preloading, 
 - Image resizing with aspect ratio preservation
 - Real-time status display with cache information
 
-### 4. 🎥 Video Compressor (`video_compressor.py`)
+### 4. 📸 Slideshow Viewer (`slideshow.py`)
+High-performance image slideshow application with advanced caching, preloading, and smooth navigation.
+
+**Features:**
+- **Smart Caching**: Preload nearby images with configurable cache size (5-50 images)
+- **Full-Screen Experience**: Immersive viewing with overlay controls
+- **Auto-Slideshow**: Customizable timing (0.5s to 10s intervals)
+- **Shuffle Mode**: Random image order with position tracking
+- **Performance Optimized**: Multi-threaded preloading and memory management
+- **Rich Controls**: Keyboard shortcuts and context menu
+- **Format Support**: PNG, JPG, JPEG, GIF, BMP, WEBP, TIFF with progress loading
+
+**Advanced Features:**
+- Background image preloading thread
+- Smart cache cleanup algorithms
+- Recursive directory scanning
+- Image resizing with aspect ratio preservation
+- Real-time status display with cache information
+
+### 5. 🎥 Video Compressor (`video_compressor.py`)
 Professional video compression tool with preset configurations and real-time progress tracking.
 
 **Features:**
@@ -90,11 +145,17 @@ Professional video compression tool with preset configurations and real-time pro
 # Core dependencies for all applications
 pip install customtkinter pillow ttkthemes
 
+# For audio/video converter
+pip install moviepy
+
+# For video downloader
+pip install yt-dlp
+
 # For password manager additional features
 pip install pyperclip requests
 
 # Verify installation
-python -c "import customtkinter, PIL, tkinter; print('Dependencies OK')"
+python -c "import customtkinter, PIL, tkinter, moviepy, yt_dlp; print('Dependencies OK')"
 ```
 
 ### FFmpeg Installation
@@ -122,6 +183,12 @@ brew install ffmpeg
 ### Running Applications
 
 ```bash
+# Audio & Video Converter
+python audio_and_video_converter.py
+
+# Video Downloader
+python download_video_and_audio.py
+
 # Image Processor
 python convert_compress_resize_image.py
 
@@ -147,9 +214,16 @@ python video_compressor.py
 - `R` - Reload current image
 - `Right-click` - Context menu with settings
 
-#### General Controls:
-- `ESC` - Exit or cancel operations
-- `F11` - Fullscreen toggle (where supported)
+#### Video Downloader:
+- `Ctrl+V` - Paste URL in focused entry field
+- `Delete` - Remove selected URL from batch list
+- `Tab` - Navigate between different download modes
+- URL validation happens in real-time
+
+#### Audio & Video Converter:
+- `Tab` - Switch between audio extraction and video conversion modes
+- Progress bars show real-time conversion status
+- Drag & drop support for multiple files
 
 ## ⚙️ Configuration & Settings
 
@@ -224,12 +298,14 @@ presets = {
 
 ```
 multimedia-tools/
-├── convert_compress_resize_image.py    # Image processing application
+├── audio_and_video_converter.py       # Unified media converter
+├── download_video_and_audio.py        # Video/audio downloader  
+├── convert_compress_resize_image.py   # Image processing application
 ├── password_generator.py              # Password management tool  
 ├── slideshow.py                       # Image slideshow viewer
-├── video_compressor.py               # Video compression utility
-├── README.md                         # Documentation (this file)
-└── requirements.txt                  # Python dependencies
+├── video_compressor.py                # Video compression utility
+├── README.md                          # Documentation (this file)
+└── requirements.txt                   # Python dependencies
 ```
 
 ## 🛠️ Troubleshooting
@@ -249,12 +325,29 @@ ffmpeg -version
 **Missing Dependencies:**
 ```bash
 # Install all required packages
-pip install --upgrade customtkinter pillow ttkthemes pyperclip requests
+pip install --upgrade customtkinter pillow ttkthemes pyperclip requests moviepy yt-dlp
 
 # For import errors, try:
 pip uninstall customtkinter
 pip install customtkinter
+
+# For MoviePy issues:
+pip install --upgrade moviepy imageio imageio-ffmpeg
+
+# For yt-dlp issues:
+pip install --upgrade yt-dlp
 ```
+
+**Network/Download Issues:**
+- Check internet connection for video downloads
+- Some videos may be region-restricted
+- YouTube frequently updates - keep yt-dlp updated: `pip install --upgrade yt-dlp`
+- For audio extraction, ensure FFmpeg is properly installed
+
+**MoviePy/FFmpeg Integration Issues:**
+- Ensure FFmpeg is in system PATH
+- Update MoviePy: `pip install --upgrade moviepy`
+- For Windows: Download FFmpeg and add to PATH environment variable
 
 **Memory Issues (Large Files):**
 - Reduce slideshow cache size (5-10 images)
@@ -276,6 +369,9 @@ sudo python script_name.py  # If needed
 2. **Image Processing**: Use appropriate compression levels (15-25 for good balance)  
 3. **Slideshow**: Reduce cache size on older systems, use shuffle for variety
 4. **Password Generation**: Bulk generation is more efficient than individual passwords
+5. **Video Downloads**: Use lower quality settings for faster downloads and less bandwidth
+6. **Audio Conversion**: MP3 format generally processes faster than WAV or FLAC
+7. **Batch Operations**: Process files in smaller groups to avoid memory issues
 
 ### System Requirements
 
@@ -286,14 +382,34 @@ sudo python script_name.py  # If needed
 
 ## 📊 Feature Comparison
 
-| Feature | Image Processor | Password Manager | Slideshow Viewer | Video Compressor |
-|---------|----------------|------------------|------------------|------------------|
-| **UI Framework** | CustomTkinter | CustomTkinter | ThemedTk | Tkinter |
-| **Threading** | ✅ Background | ✅ Network calls | ✅ Preloading | ✅ Processing |
-| **Progress Tracking** | ✅ Real-time | ✅ Analysis | ✅ Loading | ✅ Compression |
-| **Batch Operations** | ❌ Single file | ✅ Bulk generate | ✅ Folder scan | ❌ Single file |
-| **Caching** | ❌ None | ✅ History | ✅ Smart cache | ❌ None |
-| **External Tools** | ✅ FFmpeg | ✅ API calls | ❌ None | ✅ FFmpeg |
+| Feature | Audio/Video Converter | Video Downloader | Image Processor | Password Manager | Slideshow Viewer | Video Compressor |
+|---------|----------------------|------------------|-----------------|------------------|------------------|------------------|
+| **UI Framework** | TTK/Tkinter | TTK/Tkinter | CustomTkinter | CustomTkinter | ThemedTk | Tkinter |
+| **Threading** | ✅ Background | ✅ Downloads | ✅ Background | ✅ Network calls | ✅ Preloading | ✅ Processing |
+| **Progress Tracking** | ✅ Queue-based | ✅ Real-time | ✅ Real-time | ✅ Analysis | ✅ Loading | ✅ Compression |
+| **Batch Operations** | ✅ Multiple files | ✅ URL lists | ❌ Single file | ✅ Bulk generate | ✅ Folder scan | ❌ Single file |
+| **Caching** | ❌ None | ❌ None | ❌ None | ✅ History | ✅ Smart cache | ❌ None |
+| **External Tools** | ✅ MoviePy/FFmpeg | ✅ yt-dlp | ✅ FFmpeg | ✅ API calls | ❌ None | ✅ FFmpeg |
+| **Network Required** | ❌ Local only | ✅ Downloads | ❌ Local only | ✅ Breach check | ❌ Local only | ❌ Local only |
+
+## 🔄 Version History & Updates
+
+**Current Version**: 1.0.0
+- Initial release with all core features
+- Modern dark theme UI across all applications  
+- Multi-threading for performance
+- Comprehensive error handling
+- Advanced caching and optimization features
+- Audio/video conversion and download capabilities
+
+**Planned Features**:
+- Batch processing for image processor
+- Video format conversion options  
+- Password manager encryption
+- Slideshow transition effects
+- Cloud storage integration options
+- Playlist download support for video downloader
+- Custom FFmpeg parameters for advanced users
 
 ---
 
