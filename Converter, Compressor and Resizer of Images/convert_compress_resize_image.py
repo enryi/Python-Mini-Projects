@@ -186,7 +186,7 @@ class ModernImageProcessor:
         formats.sort()
         
         ctk.CTkLabel(convert_frame, text="From:").grid(row=1, column=0, padx=15, pady=5, sticky="w")
-        self.from_format = ctk.CTkOptionMenu(convert_frame, values=formats)
+        self.from_format = ctk.CTkOptionMenu(convert_frame, values=formats, state="disabled")  # Set initially disabled
         self.from_format.grid(row=1, column=1, padx=10, pady=5, sticky="ew")
         
         ctk.CTkLabel(convert_frame, text="To:").grid(row=1, column=2, padx=15, pady=5, sticky="w")
@@ -259,6 +259,13 @@ class ModernImageProcessor:
             self.selected_file = file_path
             self.file_label.configure(text=os.path.basename(file_path), text_color="white")
             self.log_message(f"Selected file: {file_path}")
+            
+            # Detect and set input format
+            extension = os.path.splitext(file_path)[1].upper().lstrip('.')
+            if extension == 'JPG':
+                extension = 'JPEG'
+            self.from_format.configure(state="disabled")  # Disable the dropdown
+            self.from_format.set(extension)  # Set the detected format
             
     def select_output_dir(self):
         """Select output directory"""
