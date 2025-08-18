@@ -412,11 +412,33 @@ class ModernImageProcessor:
             self.progress_bar.set(0.2)
             self.log_message("Starting format conversion...")
             
-            from_fmt = self.from_format.get().lower()
-            to_fmt = self.to_format.get().lower()
+            format_mapping = {
+                'JPG': ('JPEG', 'jpg'),
+                'JPEG': ('JPEG', 'jpeg'),
+                'PNG': ('PNG', 'png'),
+                'BMP': ('BMP', 'bmp'),
+                'TIFF': ('TIFF', 'tiff'),
+                'WEBP': ('WEBP', 'webp'),
+                'ICO': ('ICO', 'ico'),
+                'GIF': ('GIF', 'gif'),
+                'EPS': ('EPS', 'eps'),
+                'PCX': ('PCX', 'pcx'),
+                'PPM': ('PPM', 'ppm'),
+                'SGI': ('SGI', 'sgi'),
+                'TGA': ('TGA', 'tga'),
+                'PSD': ('PSD', 'psd'),
+                'PDF': ('PDF', 'pdf'),
+                'HEIC': ('HEIC', 'heic')
+            }
+            
+            selected_from = self.from_format.get().upper()
+            selected_to = self.to_format.get().upper()
+            
+            from_fmt = format_mapping.get(selected_from, (selected_from, selected_from.lower()))[0]
+            to_fmt, to_ext = format_mapping.get(selected_to, (selected_to, selected_to.lower()))
             
             with Image.open(self.selected_file) as img:
-                if to_fmt == 'jpeg' and img.mode in ('RGBA', 'LA', 'P'):
+                if to_fmt == 'JPEG' and img.mode in ('RGBA', 'LA', 'P'):
                     background = Image.new('RGB', img.size, (255, 255, 255))
                     if img.mode == 'P':
                         img = img.convert('RGBA')
@@ -425,13 +447,13 @@ class ModernImageProcessor:
                     
                 self.progress_bar.set(0.8)
                 
-                output_path = self.get_output_path(self.selected_file, f"_to_{to_fmt}", to_fmt)
+                output_path = self.get_output_path(self.selected_file, "_converted", to_ext)
                 
                 save_kwargs = {}
-                if to_fmt == 'jpeg':
+                if to_fmt == 'JPEG':
                     save_kwargs['quality'] = 95
                     
-                img.save(output_path, format=to_fmt.upper(), **save_kwargs)
+                img.save(output_path, format=to_fmt, **save_kwargs)
                 
                 self.progress_bar.set(1.0)
                 self.log_message(f"Image converted successfully: {output_path}")
