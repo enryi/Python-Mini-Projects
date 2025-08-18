@@ -178,12 +178,19 @@ class ModernImageProcessor:
             row=0, column=0, columnspan=4, pady=(15, 10), sticky="w", padx=15
         )
         
+        formats = [
+            "JPEG", "JPG", "PNG", "BMP", "TIFF", "WEBP", "ICO", "GIF", 
+            "EPS", "PCX", "PPM", "SGI", "TGA", "PSD", "PDF", "HEIC",
+            "DIB", "EXR", "IM", "MSP", "Palm", "PCX", "XV"
+        ]
+        formats.sort()
+        
         ctk.CTkLabel(convert_frame, text="From:").grid(row=1, column=0, padx=15, pady=5, sticky="w")
-        self.from_format = ctk.CTkOptionMenu(convert_frame, values=["PNG", "JPEG", "BMP", "TIFF", "WEBP"])
+        self.from_format = ctk.CTkOptionMenu(convert_frame, values=formats)
         self.from_format.grid(row=1, column=1, padx=10, pady=5, sticky="ew")
         
         ctk.CTkLabel(convert_frame, text="To:").grid(row=1, column=2, padx=15, pady=5, sticky="w")
-        self.to_format = ctk.CTkOptionMenu(convert_frame, values=["JPEG", "PNG", "BMP", "TIFF", "WEBP"])
+        self.to_format = ctk.CTkOptionMenu(convert_frame, values=formats)
         self.to_format.grid(row=1, column=3, padx=(10, 15), pady=5, sticky="ew")
         
         ctk.CTkButton(
@@ -230,7 +237,20 @@ class ModernImageProcessor:
         file_path = filedialog.askopenfilename(
             title="Select Image File",
             filetypes=[
-                ("Image files", "*.png *.jpg *.jpeg *.bmp *.tiff *.webp"),
+                ("All Image files", "*.jpg *.jpeg *.png *.bmp *.tiff *.webp *.ico *.gif *.eps"
+                 " *.pcx *.ppm *.sgi *.tga *.psd *.pdf *.heic *.dib *.exr *.im *.msp *.palm *.pcx *.xv"),
+                ("JPEG files", "*.jpg *.jpeg"),
+                ("PNG files", "*.png"),
+                ("BMP files", "*.bmp"),
+                ("TIFF files", "*.tiff"),
+                ("WebP files", "*.webp"),
+                ("ICO files", "*.ico"),
+                ("GIF files", "*.gif"),
+                ("EPS files", "*.eps"),
+                ("PSD files", "*.psd"),
+                ("PDF files", "*.pdf"),
+                ("HEIC files", "*.heic"),
+                ("Other formats", "*.pcx *.ppm *.sgi *.tga *.dib *.exr *.im *.msp *.palm *.xv"),
                 ("All files", "*.*")
             ]
         )
