@@ -23,7 +23,8 @@ class VideoConverter:
 
     def convert_to_mp4(self, input_file, output_path, quality="fast", audio_bitrate="192k"):
         time.sleep(2)  # Simulate processing time
-        output_file = os.path.join(output_path, f"{Path(input_file).stem}.mp4")
+        input_path = Path(input_file)
+        output_file = os.path.join(output_path, f"{input_path.stem}.mp4")
         return {"success": True, "output_file": output_file, "error": None}
 
 class UnifiedMediaConverter:
@@ -50,8 +51,8 @@ class UnifiedMediaConverter:
     def setup_window(self):
         """Configure the main window"""
         self.root.title("Unified Media Converter")
-        self.root.geometry("950x800")
-        self.root.minsize(900, 750)
+        self.root.geometry("900x700")
+        self.root.minsize(850, 650)
         self.root.configure(bg='#1e1e1e')
         
         # Center window
@@ -66,7 +67,7 @@ class UnifiedMediaConverter:
     def center_window(self):
         """Center the window on screen"""
         self.root.update_idletasks()
-        width, height = 950, 800
+        width, height = 900, 700
         x = (self.root.winfo_screenwidth() // 2) - (width // 2)
         y = (self.root.winfo_screenheight() // 2) - (height // 2)
         self.root.geometry(f'{width}x{height}+{x}+{y}')
@@ -119,12 +120,12 @@ class UnifiedMediaConverter:
         self.style.configure('Title.TLabel',
                            background=self.colors['bg_primary'],
                            foreground=self.colors['text_primary'],
-                           font=('Segoe UI', 18, 'bold'))
+                           font=('Segoe UI', 16, 'bold'))
         
         self.style.configure('Subtitle.TLabel',
                            background=self.colors['bg_secondary'],
                            foreground=self.colors['text_secondary'],
-                           font=('Segoe UI', 11, 'bold'))
+                           font=('Segoe UI', 10, 'bold'))
         
         self.style.configure('Card.TLabel',
                            background=self.colors['bg_secondary'],
@@ -157,8 +158,8 @@ class UnifiedMediaConverter:
         self.style.configure('Modern.TNotebook.Tab',
                            background=self.colors['bg_secondary'],
                            foreground=self.colors['text_secondary'],
-                           padding=[20, 8],
-                           font=('Segoe UI', 10))
+                           padding=[15, 6],
+                           font=('Segoe UI', 9))
         
         self.style.map('Modern.TNotebook.Tab',
                       background=[('selected', self.colors['accent']),
@@ -186,15 +187,14 @@ class UnifiedMediaConverter:
     
     def create_widgets(self):
         """Create all interface widgets"""
-        # Main container
-        main_container = ttk.Frame(self.root, style='Main.TFrame', padding="20")
-        main_container.pack(fill="both", expand=True)
+        # Create main scrollable frame
+        self.create_scrollable_container()
         
         # Header
-        self.create_header(main_container)
+        self.create_header()
         
         # Tabbed interface
-        self.create_tabs(main_container)
+        self.create_tabs()
         
         # Common sections
         self.create_file_section()
@@ -202,10 +202,40 @@ class UnifiedMediaConverter:
         self.create_progress_section()
         self.create_controls()
     
-    def create_header(self, parent):
+    def create_scrollable_container(self):
+        """Create scrollable main container"""
+        # Create canvas and scrollbar
+        self.canvas = tk.Canvas(self.root, bg=self.colors['bg_primary'], highlightthickness=0)
+        scrollbar = ttk.Scrollbar(self.root, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = ttk.Frame(self.canvas, style='Main.TFrame')
+        
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        )
+        
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=scrollbar.set)
+        
+        self.canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
+        # Bind mousewheel to canvas
+        self.canvas.bind("<MouseWheel>", self._on_mousewheel)
+        self.root.bind("<MouseWheel>", self._on_mousewheel)
+        
+        # Main container with padding
+        self.main_container = ttk.Frame(self.scrollable_frame, style='Main.TFrame', padding="15")
+        self.main_container.pack(fill="both", expand=True)
+    
+    def _on_mousewheel(self, event):
+        """Handle mousewheel scrolling"""
+        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+    
+    def create_header(self):
         """Create application header"""
-        header_frame = ttk.Frame(parent, style='Main.TFrame')
-        header_frame.pack(fill="x", pady=(0, 20))
+        header_frame = ttk.Frame(self.main_container, style='Main.TFrame')
+        header_frame.pack(fill="x", pady=(0, 15))
         
         title_label = ttk.Label(header_frame, text="🎬 Unified Media Converter", style='Title.TLabel')
         title_label.pack(side="left")
@@ -221,10 +251,10 @@ class UnifiedMediaConverter:
         ttk.Label(status_frame, text=status_text, 
                  style='Card.TLabel', font=('Segoe UI', 8)).pack()
     
-    def create_tabs(self, parent):
+    def create_tabs(self):
         """Create tabbed interface"""
-        self.notebook = ttk.Notebook(parent, style='Modern.TNotebook')
-        self.notebook.pack(fill="both", expand=True, pady=(0, 20))
+        self.notebook = ttk.Notebook(self.main_container, style='Modern.TNotebook')
+        self.notebook.pack(fill="x", pady=(0, 15))
         
         # Audio extraction tab
         self.audio_frame = ttk.Frame(self.notebook, style='Main.TFrame')
@@ -241,24 +271,24 @@ class UnifiedMediaConverter:
     def create_audio_tab(self):
         """Create audio extraction settings"""
         if not MOVIEPY_AVAILABLE:
-            warning_frame = ttk.Frame(self.audio_frame, style='Card.TFrame', padding="15")
-            warning_frame.pack(fill="x", padx=10, pady=10)
+            warning_frame = ttk.Frame(self.audio_frame, style='Card.TFrame', padding="10")
+            warning_frame.pack(fill="x", padx=5, pady=5)
             
             ttk.Label(warning_frame, 
                      text="⚠️ MoviePy not available. Install with: pip install moviepy",
                      style='Card.TLabel', 
-                     font=('Segoe UI', 10, 'bold')).pack()
+                     font=('Segoe UI', 9, 'bold')).pack()
             return
         
-        settings_frame = ttk.Frame(self.audio_frame, style='Card.TFrame', padding="15")
-        settings_frame.pack(fill="x", padx=10, pady=10)
+        settings_frame = ttk.Frame(self.audio_frame, style='Card.TFrame', padding="10")
+        settings_frame.pack(fill="x", padx=5, pady=5)
         
         ttk.Label(settings_frame, text="🎵 Audio Extraction Settings", 
-                 style='Subtitle.TLabel').pack(anchor="w", pady=(0, 10))
+                 style='Subtitle.TLabel').pack(anchor="w", pady=(0, 8))
         
         # Format selection
         format_frame = ttk.Frame(settings_frame, style='Card.TFrame')
-        format_frame.pack(fill="x", pady=(0, 10))
+        format_frame.pack(fill="x", pady=(0, 8))
         
         ttk.Label(format_frame, text="Output Format:", style='Card.TLabel').pack(side="left")
         format_combo = ttk.Combobox(format_frame, textvariable=self.audio_format,
@@ -278,15 +308,15 @@ class UnifiedMediaConverter:
     
     def create_video_tab(self):
         """Create video conversion settings"""
-        settings_frame = ttk.Frame(self.video_frame, style='Card.TFrame', padding="15")
-        settings_frame.pack(fill="x", padx=10, pady=10)
+        settings_frame = ttk.Frame(self.video_frame, style='Card.TFrame', padding="10")
+        settings_frame.pack(fill="x", padx=5, pady=5)
         
         ttk.Label(settings_frame, text="🎬 Video Conversion Settings", 
-                 style='Subtitle.TLabel').pack(anchor="w", pady=(0, 10))
+                 style='Subtitle.TLabel').pack(anchor="w", pady=(0, 8))
         
         # Quality selection
         quality_frame = ttk.Frame(settings_frame, style='Card.TFrame')
-        quality_frame.pack(fill="x", pady=(0, 10))
+        quality_frame.pack(fill="x", pady=(0, 8))
         
         ttk.Label(quality_frame, text="Video Quality:", style='Card.TLabel').pack(side="left")
         quality_combo = ttk.Combobox(quality_frame, textvariable=self.video_quality,
@@ -306,22 +336,22 @@ class UnifiedMediaConverter:
         bitrate_combo.pack(side="right")
         
         if not FFMPEG_AVAILABLE:
-            warning_frame = ttk.Frame(self.video_frame, style='Card.TFrame', padding="15")
-            warning_frame.pack(fill="x", padx=10, pady=(5, 10))
+            warning_frame = ttk.Frame(self.video_frame, style='Card.TFrame', padding="10")
+            warning_frame.pack(fill="x", padx=5, pady=5)
             
             ttk.Label(warning_frame, 
                      text="⚠️ Using mock converter. Install FFmpeg for real conversion.",
                      style='Card.TLabel', 
-                     font=('Segoe UI', 9)).pack()
+                     font=('Segoe UI', 8)).pack()
     
     def create_file_section(self):
         """Create file selection section"""
-        files_frame = ttk.Frame(self.root, style='Card.TFrame', padding="15")
-        files_frame.pack(fill="both", expand=True, padx=20, pady=(0, 10))
+        files_frame = ttk.Frame(self.main_container, style='Card.TFrame', padding="10")
+        files_frame.pack(fill="x", pady=(0, 10))
         
         # Header
         header_frame = ttk.Frame(files_frame, style='Card.TFrame')
-        header_frame.pack(fill="x", pady=(0, 10))
+        header_frame.pack(fill="x", pady=(0, 8))
         
         ttk.Label(header_frame, text="📁 Media Files", style='Subtitle.TLabel').pack(side="left")
         
@@ -334,12 +364,12 @@ class UnifiedMediaConverter:
         ttk.Button(buttons_frame, text="Clear All", command=self.clear_files,
                   style='Secondary.TButton').pack(side="right")
         
-        # File list
+        # File list with fixed height
         list_frame = ttk.Frame(files_frame, style='Card.TFrame')
-        list_frame.pack(fill="both", expand=True)
+        list_frame.pack(fill="x")
         
-        scrollbar = ttk.Scrollbar(list_frame)
-        scrollbar.pack(side="right", fill="y")
+        scrollbar_files = ttk.Scrollbar(list_frame)
+        scrollbar_files.pack(side="right", fill="y")
         
         self.files_listbox = tk.Listbox(list_frame,
                                        bg=self.colors['bg_tertiary'],
@@ -348,22 +378,23 @@ class UnifiedMediaConverter:
                                        selectforeground=self.colors['text_primary'],
                                        borderwidth=0,
                                        highlightthickness=0,
-                                       font=('Consolas', 9),
-                                       yscrollcommand=scrollbar.set)
-        self.files_listbox.pack(fill="both", expand=True)
-        scrollbar.config(command=self.files_listbox.yview)
+                                       font=('Consolas', 8),
+                                       height=6,
+                                       yscrollcommand=scrollbar_files.set)
+        self.files_listbox.pack(fill="x")
+        scrollbar_files.config(command=self.files_listbox.yview)
         
         self.files_listbox.bind('<Delete>', self.remove_selected_file)
         self.files_listbox.bind('<Double-Button-1>', self.remove_selected_file)
     
     def create_output_section(self):
         """Create output folder section"""
-        output_frame = ttk.Frame(self.root, style='Card.TFrame', padding="15")
-        output_frame.pack(fill="x", padx=20, pady=(0, 10))
+        output_frame = ttk.Frame(self.main_container, style='Card.TFrame', padding="10")
+        output_frame.pack(fill="x", pady=(0, 10))
         
         # Header
         header_frame = ttk.Frame(output_frame, style='Card.TFrame')
-        header_frame.pack(fill="x", pady=(0, 10))
+        header_frame.pack(fill="x", pady=(0, 8))
         
         ttk.Label(header_frame, text="💾 Output Folder", style='Subtitle.TLabel').pack(side="left")
         
@@ -372,17 +403,17 @@ class UnifiedMediaConverter:
         
         # Path entry
         self.output_entry = ttk.Entry(output_frame, textvariable=self.output_folder,
-                                     style='Modern.TEntry', font=('Consolas', 9))
+                                     style='Modern.TEntry', font=('Consolas', 8))
         self.output_entry.pack(fill="x")
     
     def create_progress_section(self):
         """Create progress section"""
-        progress_frame = ttk.Frame(self.root, style='Card.TFrame', padding="15")
-        progress_frame.pack(fill="x", padx=20, pady=(0, 10))
+        progress_frame = ttk.Frame(self.main_container, style='Card.TFrame', padding="10")
+        progress_frame.pack(fill="x", pady=(0, 10))
         
         # Header
         header_frame = ttk.Frame(progress_frame, style='Card.TFrame')
-        header_frame.pack(fill="x", pady=(0, 10))
+        header_frame.pack(fill="x", pady=(0, 8))
         
         ttk.Label(header_frame, text="📊 Progress", style='Subtitle.TLabel').pack(side="left")
         
@@ -396,8 +427,8 @@ class UnifiedMediaConverter:
     
     def create_controls(self):
         """Create control buttons"""
-        controls_frame = ttk.Frame(self.root, style='Main.TFrame')
-        controls_frame.pack(fill="x", padx=20, pady=20)
+        controls_frame = ttk.Frame(self.main_container, style='Main.TFrame')
+        controls_frame.pack(fill="x", pady=15)
         
         buttons_frame = ttk.Frame(controls_frame, style='Main.TFrame')
         buttons_frame.pack()
@@ -405,12 +436,12 @@ class UnifiedMediaConverter:
         self.start_button = ttk.Button(buttons_frame, text="🚀 Start Processing",
                                       command=self.start_processing,
                                       style='Accent.TButton', width=20)
-        self.start_button.pack(side="left", padx=(0, 10))
+        self.start_button.pack(side="left", padx=(0, 8))
         
         self.stop_button = ttk.Button(buttons_frame, text="⏹ Stop",
                                      command=self.stop_processing,
-                                     style='Secondary.TButton', state='disabled', width=15)
-        self.stop_button.pack(side="left", padx=(0, 10))
+                                     style='Secondary.TButton', state='disabled', width=12)
+        self.stop_button.pack(side="left", padx=(0, 8))
         
         ttk.Button(buttons_frame, text="📂 Open Output",
                   command=self.open_output_folder,
@@ -563,11 +594,13 @@ class UnifiedMediaConverter:
                 
                 audio_clip = video_clip.audio
                 
-                write_params = {'verbose': False, 'logger': None}
+                # Updated parameters for newer MoviePy versions
+                write_params = {}
                 
                 if self.audio_format.get().lower() in ['mp3', 'aac', 'ogg']:
                     write_params['bitrate'] = self.audio_bitrate.get()
                 
+                # Remove verbose parameter as it's not supported in newer versions
                 audio_clip.write_audiofile(output_file, **write_params)
                 audio_clip.close()
             
